@@ -392,6 +392,7 @@ bool Configuration::read(const std::vector<std::string> &config_paths, bool igno
 	p.add("execute_on_song_change", &execute_on_song_change, "", adjust_path);
 	p.add("execute_on_player_state_change", &execute_on_player_state_change,
 	      "", adjust_path);
+	p.add("custom_lyrics_fetcher", &custom_lyrics_fetcher, "", adjust_path);
 	p.add("playlist_show_mpd_host", &playlist_show_mpd_host, "no", yes_no);
 	p.add("playlist_show_remaining_time", &playlist_show_remaining_time, "no", yes_no);
 	p.add("playlist_shorten_total_times", &playlist_shorten_total_times, "no", yes_no);

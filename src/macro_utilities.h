@@ -86,5 +86,6 @@ private:
 
 void runExternalConsoleCommand(const std::string &cmd);
 void runExternalCommand(const std::string &cmd, bool block);
+void runExternalCommandIntoFile(const std::string &cmd,const std::string filename);
 
 #endif // NCMPCPP_MACRO_UTILITIES_H

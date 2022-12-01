@@ -55,6 +55,19 @@ std::istream &operator>>(std::istream &is, LyricsFetcher_ &fetcher);
 
 /**********************************************************************/
 
+struct CustomLyricsFetcher : public LyricsFetcher
+{
+
+	virtual Result fetch(const std::string &artist, const std::string &title);
+	virtual const char *name() const override {return "";}
+
+protected:
+	virtual const char *urlTemplate() const override {return "";}
+	virtual const char *regex() const override {return "";}
+};
+
+/**********************************************************************/
+
 struct GoogleLyricsFetcher : public LyricsFetcher
 {
 	virtual Result fetch(const std::string &artist, const std::string &title);
@@ -68,6 +81,9 @@ protected:
 private:
 	const char *URL;
 };
+
+
+
 
 struct MusixmatchFetcher : public GoogleLyricsFetcher
 {
@@ -110,7 +126,7 @@ struct AzLyricsFetcher : public GoogleLyricsFetcher
 	virtual const char *name() const override { return "azlyrics.com"; }
 	
 protected:
-	virtual const char *regex() const override { return "<div class=\"lyricsh\">.*?</h2>.*<div>(.*?)</div>"; }
+  virtual const char *regex() const override { return "<!-- Usage of azlyrics.com content by any third-party lyrics provider is prohibited by our licensing agreement. Sorry about that. -->(.*?)</div>"; }
 };
 
 struct GeniusFetcher : public GoogleLyricsFetcher
@@ -167,5 +183,7 @@ protected:
 private:
 	std::string URL;
 };
+
+
 
 #endif // NCMPCPP_LYRICS_FETCHER_H

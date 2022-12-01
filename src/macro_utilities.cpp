@@ -121,3 +121,8 @@ void runExternalCommand(const std::string &cmd, bool block)
 		// If we don't block, disregard any output.
 		std::system(("nohup " + cmd + " >/dev/null 2>&1 &").c_str());
 }
+
+void runExternalCommandIntoFile(const std::string &cmd,const std::string filename)
+{
+  std::system((cmd + " >" + filename).c_str());
+}

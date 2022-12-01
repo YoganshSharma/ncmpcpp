@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "curl_handle.h"
+#include "settings.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -28,9 +29,13 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/regex.hpp>
+#include <fstream>
+#include <string>
+#include <vector>
 
 #include "charset.h"
 #include "lyrics_fetcher.h"
+#include "macro_utilities.h"
 #include "utility/html.h"
 #include "utility/string.h"
 
@@ -60,6 +65,8 @@ std::istream &operator>>(std::istream &is, LyricsFetcher_ &fetcher)
 		fetcher = std::make_unique<ZeneszovegFetcher>();
 	else if (s == "internet")
 		fetcher = std::make_unique<InternetLyricsFetcher>();
+	else if (s == "custom")
+		fetcher = std::make_unique<CustomLyricsFetcher>();
 	else
 		is.setstate(std::ios::failbit);
 	return is;
@@ -149,6 +156,55 @@ void LyricsFetcher::postProcess(std::string &data) const
 
 /**********************************************************************/
 
+LyricsFetcher::Result CustomLyricsFetcher::fetch(const std::string &artist,
+                                                 const std::string &title)
+{
+	Result result;
+	result.first = false;
+  std::string data;
+  const std::string tempfile = "/tmp/ncmpcpplyricstmp";
+  if (!Config.custom_lyrics_fetcher.empty())
+  {
+    runExternalCommandIntoFile(Config.custom_lyrics_fetcher+ " \""+artist+"\" \""+title+"\"", tempfile);
+    std::ifstream input(tempfile);
+    if (input.is_open())
+    {
+      std::string line;
+      std::vector<std::string> lyrics;
+      while (std::getline(input, line))
+      {
+        lyrics.push_back(line);
+      }
+      if (lyrics.empty())
+      {
+        //std::cerr << "Data: " << data << "\n";
+        //std::cerr << "Empty: " << lyrics.empty() << "\n";
+        //std::cerr << "Not Lyrics: " << notLyrics(data) << "\n";
+        result.second = msgNotFound;
+        return result;
+      }
+
+      data.clear();
+      for (auto it = lyrics.begin(); it != lyrics.end(); ++it)
+      {
+        if (!it->empty())
+        {
+          data += *it;
+          if (it != lyrics.end() - 1)
+            data += "\n\n";
+        }
+      }
+      result.first = true;
+      result.second = data;
+      return result;
+
+    }
+  }
+  data = msgNotFound;
+	return result;
+}
+
+/**********************************************************************/
 LyricsFetcher::Result GoogleLyricsFetcher::fetch(const std::string &artist,
                                                  const std::string &title)
 {
